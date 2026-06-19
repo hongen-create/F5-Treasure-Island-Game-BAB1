@@ -258,6 +258,26 @@
         }
         .briefing-roller::before { top: -11px; }
         .briefing-roller::after { bottom: -11px; }
+
+        /* --- MOBILE LAYOUT FINE-TUNING OVERRIDES --- */
+        @media (max-width: 768px) {
+            #mentor-npc {
+                width: 95px;       /* Scaled down roughly 14% to fit mobile bounds */
+                bottom: 12px;      /* Raised 17px to prevent safe-area / folding line cut-off */
+                right: 8px;        /* Tighter alignment margin */
+            }
+            #dialogue-box {
+                right: 110px;      /* Expanded text field to utilize space saved by smaller portrait */
+                left: 10px;        
+                bottom: 25px;      
+                padding: 10px;     /* Optimized padding footprint */
+            }
+            #dialogue-text {
+                font-size: 12.5px; /* Compact mobile typography */
+                line-height: 1.5;
+                max-height: 75px;  /* Compact vertical boundary */
+            }
+        }
     </style>
 </head>
 <body>
@@ -360,6 +380,7 @@
             attemptId: generateAttemptId(),
             date: new Date().toISOString(),
             completedStatus: false,
+            googleSheetUploaded: false,
             level1Score: 0,
             level1Time: 0,
             transitScore: 0,
