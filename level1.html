@@ -255,6 +255,22 @@
             display: flex; flex-direction: column; justify-content: center; align-items: center; opacity: 0;
             transition: opacity 0.5s ease;
         }
+        /* Smoothly reveal text content once the map has expanded */
+        .briefing-scroll.unfolded .briefing-paper { 
+            opacity: 1; 
+            transition-delay: 0.8s; 
+        }
+        .briefing-roller {
+            position: absolute; top: -10px; bottom: -10px; width: 16px;
+            background: linear-gradient(90deg, #3d240d 0%, #7c5026 30%, #3d240d 100%);
+            border-radius: 4px; box-shadow: 0 4px 10px rgba(0,0,0,0.6); z-index: 12;
+        }
+        .briefing-roller-left { left: -8px; }
+        .briefing-roller-right { right: -8px; }
+        .briefing-roller::before, .briefing-roller::after {
+            content: ''; position: absolute; left: -3px; width: 22px; height: 14px;
+            background: radial-gradient(circle, #d4af37 20%, #8a6f27 100%); border: 1px solid #5a3f12; border-radius: 50%;
+        }
         .briefing-roller::before { top: -11px; }
         .briefing-roller::after { bottom: -11px; }
 
@@ -358,9 +374,20 @@
 
 <script>
     /* ==========================================
-       STORAGE FOUNDATION DRIVERS
+       STORAGE FOUNDATION DRIVERS & GAME DATA
        ========================================== */
     const SESSION_KEY = 'sovereigns_relic_session';
+    
+    // 游戏数据 (5 Items & 5 Questions covering structural map coordinates nicely)
+    // Declared at the absolute top of the script scope to avoid the Temporal Dead Zone (TDZ)
+    const gameData = [
+        { id: 'key', src: 'golden-key.png', x: 20, y: 85, q: "Apakah maksud Sovereignty dalam bahasa Inggeris?", opts: ["Negara berhak menentukan sempadan", "Negara bersatu menentang penceroboh", "Negara berkuasa penuh dalam pentadbiran", "Negara berjuang menuntut kemerdekaan"], ans: 2 },
+        { id: 'coin', src: 'pirate-coin.png', x: 80, y: 55, q: "Apakah perundangan yang menjadi asas kepada sistem peraturan negara kita?", opts: ["Undang-undang adat", "Hukum Kanun Melaka", "Undang-undang syariah", "Perlembagaan Persekutuan"], ans: 3 },
+        { id: 'lantern', src: 'lantern.png', x: 60, y: 35, q: "Dasar Pembangunan Ekonomi dibentuk selepas merdeka. Apakah matlamat yang hendak dicapai?", opts: ["Mentransformasikan ekonomi", "Meningkat taraf hidup rakyat", "Memantapkan peranan FELDA", "Memperkenalkan pertanian dagangan"], ans: 1 },
+        { id: 'sword', src: 'curved-sword.png', x: 35, y: 18, q: "Yang manakah berkaitan dengan pengiktirafan PBB terhadap sesebuah negara?", opts: ["Kedaulatan tradisional", "Kedaulatan moden", "Kedaulatan undang-undang", "Kedaulatan antarabangsa"], ans: 3 },
+        { id: 'chest', src: 'treasure-chest.png', x: 50, y: 6, q: "Tokoh X: 'Kedaulatan dibina berdasarkan prinsip kebebasan dan keadilan'. Siapakah X?", opts: ["Aristotle", "Jean Bodin", "Ibn Khaldun", "Tunku Abdul Rahman"], ans: 2 }
+    ];
+
     let level1StartTime = 0;
     let level1CorrectCount = 0;
 
@@ -757,15 +784,6 @@
         setTimeout(onDone, 450);
     }
     /* ========================================== */
-
-    // 游戏数据 (5 Items & 5 Questions covering structural map coordinates nicely)
-    const gameData = [
-        { id: 'key', src: 'golden-key.png', x: 20, y: 85, q: "Apakah maksud Sovereignty dalam bahasa Inggeris?", opts: ["Negara berhak menentukan sempadan", "Negara bersatu menentang penceroboh", "Negara berkuasa penuh dalam pentadbiran", "Negara berjuang menuntut kemerdekaan"], ans: 2 },
-        { id: 'coin', src: 'pirate-coin.png', x: 80, y: 55, q: "Apakah perundangan yang menjadi asas kepada sistem peraturan negara kita?", opts: ["Undang-undang adat", "Hukum Kanun Melaka", "Undang-undang syariah", "Perlembagaan Persekutuan"], ans: 3 },
-        { id: 'lantern', src: 'lantern.png', x: 60, y: 35, q: "Dasar Pembangunan Ekonomi dibentuk selepas merdeka. Apakah matlamat yang hendak dicapai?", opts: ["Mentransformasikan ekonomi", "Meningkat taraf hidup rakyat", "Memantapkan peranan FELDA", "Memperkenalkan pertanian dagangan"], ans: 1 },
-        { id: 'sword', src: 'curved-sword.png', x: 35, y: 18, q: "Yang manakah berkaitan dengan pengiktirafan PBB terhadap sesebuah negara?", opts: ["Kedaulatan tradisional", "Kedaulatan moden", "Kedaulatan undang-undang", "Kedaulatan antarabangsa"], ans: 3 },
-        { id: 'chest', src: 'treasure-chest.png', x: 50, y: 6, q: "Tokoh X: 'Kedaulatan dibina berdasarkan prinsip kebebasan dan keadilan'. Siapakah X?", opts: ["Aristotle", "Jean Bodin", "Ibn Khaldun", "Tunku Abdul Rahman"], ans: 2 }
-    ];
 
     let itemsFound = 0;
 
