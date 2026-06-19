@@ -327,7 +327,8 @@
 
         .holo-content-box {
             width: 100%;
-            min-height: 150px;
+            height: 180px; /* Bounded fixed height to prevent dynamic card expansion */
+            overflow-y: auto; /* Gracefully hold text overflow if layout bounds are reached */
             background: rgba(0, 0, 0, 0.45);
             border: 1px solid rgba(0, 229, 255, 0.25);
             border-radius: 6px;
@@ -340,6 +341,18 @@
             text-align: left;
             z-index: 5;
             white-space: pre-line;
+        }
+
+        /* High-tech Scrollbar matching custom cyber HUD design */
+        .holo-content-box::-webkit-scrollbar {
+            width: 4px;
+        }
+        .holo-content-box::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .holo-content-box::-webkit-scrollbar-thumb {
+            background: rgba(0, 229, 255, 0.3);
+            border-radius: 4px;
         }
 
         .briefing-btn {
