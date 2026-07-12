@@ -1,3 +1,4 @@
+--- START OF FILE transit.html ---
 <!DOCTYPE html>
 <html lang="zh">
 <head>
@@ -919,11 +920,10 @@
         const diagBox = document.getElementById('intro-dialogue-box');
         if (diagBox) {
             const lines = [
-                "欢迎回来，探险家。",
-                "你已经成功完成寻宝岛挑战。",
-                "接下来，你将进入知识长廊。",
-                "在那里，你需要运用历史知识破解古老试炼。",
-                "每回答正确一道问题，你就会离终点更近一步。"
+                "欢迎回来。",
+                "知识长廊已开启。",
+                "回答五道历史问题。",
+                "准备开始挑战吧！"
             ];
             runIntroTypewriter(diagBox, lines, 0, () => {
                 const btnReady = document.getElementById('btn-intro-ready');
@@ -1217,7 +1217,7 @@
 </script>
 
 <audio id="bgMusic" loop>
-    <source src="transit-ambient.mp3" type="audio/mpeg">
+    <source src="game-bgm.mp3" type="audio/mpeg">
 </audio>
 
 <audio id="clickSound">

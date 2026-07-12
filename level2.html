@@ -240,6 +240,7 @@
         .hologram-panel {
             width: 100%;
             max-width: 380px;
+            height: 510px; /* Fixed height to prevent vertical stretching */
             background: rgba(10, 24, 30, 0.88);
             border: 2px solid #00e5ff;
             border-radius: 12px;
@@ -327,8 +328,7 @@
 
         .holo-content-box {
             width: 100%;
-            height: 180px; /* Bounded fixed height to prevent dynamic card expansion */
-            overflow-y: auto; /* Gracefully hold text overflow if layout bounds are reached */
+            height: 180px; /* Fixed Height to prevent scrolling element expansion */
             background: rgba(0, 0, 0, 0.45);
             border: 1px solid rgba(0, 229, 255, 0.25);
             border-radius: 6px;
@@ -341,18 +341,7 @@
             text-align: left;
             z-index: 5;
             white-space: pre-line;
-        }
-
-        /* High-tech Scrollbar matching custom cyber HUD design */
-        .holo-content-box::-webkit-scrollbar {
-            width: 4px;
-        }
-        .holo-content-box::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        .holo-content-box::-webkit-scrollbar-thumb {
-            background: rgba(0, 229, 255, 0.3);
-            border-radius: 4px;
+            overflow: hidden; /* Prevent scrolling behavior entirely */
         }
 
         .briefing-btn {
@@ -488,7 +477,7 @@
         #quiz-overlay .modal::-webkit-scrollbar {
             width: 4px;
         }
-        #quiz-overlay .modal::-webkit-scrollbar-track {
+        #quiz-overlay .modal-track {
             background: transparent;
         }
         #quiz-overlay .modal::-webkit-scrollbar-thumb {
@@ -756,7 +745,7 @@
         #quiz-overlay .action-btn:hover, #quiz-overlay .action-btn:active {
             background: rgba(197, 160, 89, 0.15);
             border-color: #ffdf70;
-            box-shadow: 0 0 10px rgba(255, 223, 112, 0.2);
+            box-shadow: 0 0 10px rgba(197, 160, 89, 0.2);
         }
 
         /* Standard Red design button custom style wrapper */
@@ -901,7 +890,7 @@
     </div>
 
     <audio id="bgMusic" loop>
-        <source src="maze-ambient.mp3" type="audio/mpeg">
+        <source src="game-bgm.mp3" type="audio/mpeg">
     </audio>
 
     <audio id="barrierSound">
@@ -1024,7 +1013,7 @@
         window.addEventListener('resize', resizeCanvas);
         resizeCanvas();
 
-        let gameState = 'BRIEFING';
+        let gameState = 'PLAYING';
         let fadeAlpha = 0;
 
         // --- NEW QUESTIONS & TARGET RETYPE SENTENCES PATCH ---
@@ -1873,7 +1862,7 @@
                     osc.connect(g);
                     g.connect(mcAudioCtx.destination);
                     osc.start(startTime);
-                    osc.stop(startTime + 0.35);
+                    osc.stop(startTime + 0.355);
                 }
             } catch(e) {}
         }
@@ -1890,7 +1879,20 @@
         function initMissionBriefing() {
             console.log("Mission Briefing: Initializing sequence...");
             gameState = 'BRIEFING';
-            runScene1();
+            
+            const nextBtn = document.getElementById('btnHoloNext');
+            if (nextBtn) nextBtn.style.display = 'none';
+            
+            playScanSound(); // 开启全息扫描音频
+            
+            runHoloTypewriter(
+                "扫描远古宫殿...\n古老结界 ×5\n黑暗灵体 ×4\n任务分析完成",
+                35,
+                () => {
+                    if (nextBtn) nextBtn.style.display = 'block';
+                    playSuccessChime();
+                }
+            );
         }
 
         /* ==========================================
@@ -1955,86 +1957,8 @@
             }
         }
 
-        // Handle Scene 1 skippability
-        let scene1Active = false;
-        let scene1Timeout = null;
-        let scene1TypeTimeout = null;
-        
-        function runScene1() {
-            console.log("Mission Briefing: Loading Scene 1 (Temple Scan)");
-            scene1Active = true;
-            const nextBtn = document.getElementById('btnHoloNext');
-            const content = document.getElementById('holoContent');
-            nextBtn.style.display = 'none'; 
-            
-            let lines = [
-                "扫描远古宫殿中...",
-                "发现未知遗迹结构...",
-                "发现古老结界 ×5",
-                "发现黑暗灵体 ×4",
-                "任务分析完成"
-            ];
-            
-            let currentLineIdx = 0;
-            content.innerHTML = "";
-            
-            function revealNextLine() {
-                if (!scene1Active) return;
-                if (currentLineIdx < lines.length) {
-                    playScanSound();
-                    
-                    const lineDiv = document.createElement('div');
-                    lineDiv.style.textShadow = '0 0 6px #00e5ff';
-                    lineDiv.style.marginBottom = '8px';
-                    content.appendChild(lineDiv);
-                    
-                    let charIdx = 0;
-                    let text = lines[currentLineIdx];
-                    
-                    function typeChar() {
-                        if (!scene1Active) return;
-                        if (charIdx < text.length) {
-                            lineDiv.innerHTML += text.charAt(charIdx);
-                            charIdx++;
-                            playTypewriterTick();
-                            scene1TypeTimeout = setTimeout(typeChar, 35);
-                        } else {
-                            currentLineIdx++;
-                            scene1Timeout = setTimeout(revealNextLine, 500);
-                        }
-                    }
-                    typeChar();
-                } else {
-                    finishScene1();
-                }
-            }
-            revealNextLine();
-        }
-
-        function finishScene1() {
-            if (!scene1Active) return;
-            scene1Active = false;
-            if (scene1Timeout) clearTimeout(scene1Timeout);
-            if (scene1TypeTimeout) clearTimeout(scene1TypeTimeout);
-            
-            const nextBtn = document.getElementById('btnHoloNext');
-            const content = document.getElementById('holoContent');
-            
-            content.innerHTML = `
-                <div style="text-shadow: 0 0 6px #00e5ff; margin-bottom: 8px;">扫描远古宫殿中...</div>
-                <div style="text-shadow: 0 0 6px #00e5ff; margin-bottom: 8px;">发现未知遗迹结构...</div>
-                <div style="text-shadow: 0 0 6px #00e5ff; margin-bottom: 8px;">发现古老结界 ×5</div>
-                <div style="text-shadow: 0 0 6px #00e5ff; margin-bottom: 8px;">发现黑暗灵体 ×4</div>
-                <div style="text-shadow: 0 0 6px #00e5ff; margin-bottom: 8px;">任务分析完成</div>
-            `;
-            nextBtn.style.display = 'block';
-            playSuccessChime();
-        }
-
         function skipHoloDialogue() {
-            if (scene1Active) {
-                finishScene1();
-            } else if (holoState.isTyping) {
+            if (holoState.isTyping) {
                 finishHoloTypewriter();
             } else {
                 const btnHoloNext = document.getElementById('btnHoloNext');
@@ -2060,40 +1984,34 @@
             console.log("Mission Briefing: Clicked Next. Navigating to Step " + currentBriefingScene);
             
             if (currentBriefingScene === 2) {
-                document.getElementById('mentorImg').src = "JACK3.png";
-                runHoloTypewriter(
-                    "太好了！\n我们已经成功进入远古宫殿。\n\n你的任务是：\n找到并解除5个古老结界。\n每一个结界都封印着重要历史知识。\n只有回答历史问题，才能解除封印。",
-                    22
-                );
-            } else if (currentBriefingScene === 3) {
                 document.getElementById('mentorImg').src = "JACK4.png";
                 document.getElementById('mission-control-overlay').classList.add('warning-flash');
                 document.getElementById('ghostAnim').style.display = 'block';
                 playWarningAlert();
                 
                 runHoloTypewriter(
-                    "⚠ 危险警告\n侦测到黑暗灵体活动中！\n\n千万不要碰到黑暗灵体。\n每被攻击一次：\n❤️ -1\n你只有：\n❤️❤️❤️\n三条生命值。",
+                    "危险警告\n避开黑暗灵体。\n每次碰撞\n❤️ -1",
                     22
                 );
-            } else if (currentBriefingScene === 4) {
+            } else if (currentBriefingScene === 3) {
                 document.getElementById('mentorImg').src = "JACK2.png";
                 document.getElementById('mission-control-overlay').classList.remove('warning-flash');
                 document.getElementById('ghostAnim').style.display = 'none';
                 playSuccessChime();
                 
                 runHoloTypewriter(
-                    "任务目标：\n✅ 找到5个结界\n✅ 回答历史问题\n✅ 避开黑暗灵体\n✅ 成功解除全部封印\n\n图例指南：\n🔵 古老结界  👻 黑暗灵体  🧑 探险家",
+                    "✓ 解除5个结界\n✓ 默写历史口诀\n✓ 避开黑暗灵体",
                     22
                 );
-            } else if (currentBriefingScene === 5) {
+            } else if (currentBriefingScene === 4) {
                 document.getElementById('mentorImg').src = "JACK5.png";
                 nextBtn.innerText = "🚪 开始探索";
                 
                 runHoloTypewriter(
-                    "历史探险家，\n遗迹大门已经开启。\n\n准备好迎接挑战了吗？\n祝你好运！",
+                    "历史探险家，\n遗迹大门已经开启。\n准备好迎接挑战了吗？\n祝你好运！",
                     22
                 );
-            } else if (currentBriefingScene === 6) {
+            } else if (currentBriefingScene === 5) {
                 startLevel2Gameplay();
             }
         });

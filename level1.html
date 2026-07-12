@@ -232,48 +232,6 @@
             100% { transform: translateX(-50%) translateY(3px); }
         }
 
-        /* 帝国横向藏宝图/卷轴样式 */
-        .briefing-scroll {
-            position: absolute; height: 380px; display: flex; align-items: center; justify-content: center;
-            z-index: 220; opacity: 0; transform: scale(0.1) rotate(-15deg);
-            transition: all 0.8s cubic-bezier(0.25, 1, 0.5, 1); pointer-events: none;
-        }
-        /* 初始在JACK老师手侧 */
-        .briefing-scroll.spawned {
-            opacity: 1; transform: scale(1) rotate(0deg); right: 60px; bottom: 120px; width: 44px;
-        }
-        /* 魔法舒展并移向屏幕中央 */
-        .briefing-scroll.unfolded {
-            width: 90%; max-width: 390px; left: 5%; right: 5%; top: 15%; bottom: auto;
-            transform: scale(1) rotate(0deg); opacity: 1; pointer-events: auto;
-            transition: width 1s cubic-bezier(0.25, 1, 0.5, 1), left 1s, right 1s, top 1s, bottom 1s;
-        }
-        .briefing-paper {
-            width: 100%; height: 100%; background: radial-gradient(circle, #f5e8d3 60%, #dec8a5 100%);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.85); border-top: 3px double #5a3f12; border-bottom: 3px double #5a3f12;
-            z-index: 10; overflow: hidden; padding: 25px 18px; color: #382414;
-            display: flex; flex-direction: column; justify-content: center; align-items: center; opacity: 0;
-            transition: opacity 0.5s ease;
-        }
-        /* Smoothly reveal text content once the map has expanded */
-        .briefing-scroll.unfolded .briefing-paper { 
-            opacity: 1; 
-            transition-delay: 0.8s; 
-        }
-        .briefing-roller {
-            position: absolute; top: -10px; bottom: -10px; width: 16px;
-            background: linear-gradient(90deg, #3d240d 0%, #7c5026 30%, #3d240d 100%);
-            border-radius: 4px; box-shadow: 0 4px 10px rgba(0,0,0,0.6); z-index: 12;
-        }
-        .briefing-roller-left { left: -8px; }
-        .briefing-roller-right { right: -8px; }
-        .briefing-roller::before, .briefing-roller::after {
-            content: ''; position: absolute; left: -3px; width: 22px; height: 14px;
-            background: radial-gradient(circle, #d4af37 20%, #8a6f27 100%); border: 1px solid #5a3f12; border-radius: 50%;
-        }
-        .briefing-roller::before { top: -11px; }
-        .briefing-roller::after { bottom: -11px; }
-
         /* --- MOBILE LAYOUT FINE-TUNING OVERRIDES --- */
         @media (max-width: 768px) {
             #mentor-npc {
@@ -320,7 +278,7 @@
         </div>
     </div>
 
-    <!-- 变动 1：电影级开场及藏宝图呈递机制 -->
+    <!-- 电影级开场样式 (不包含任务说明卷轴) -->
     <div id="start-screen" class="screen" style="background: transparent;">
         <!-- 点击屏幕以启动仪式（遵守音频Autoplay安全规范） -->
         <div id="touch-to-start" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 300; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer;">
@@ -342,21 +300,6 @@
                 <div id="dialogue-fade-overlay" class="dialogue-fade-overlay"></div>
             </div>
             <div id="dialogue-scroll-indicator" class="dialogue-scroll-indicator">⬇ 滑动阅读更多</div>
-        </div>
-
-        <!-- 横向卷轴藏宝图 -->
-        <div class="briefing-scroll state-scroll-init" id="cinematicScrollBriefing">
-            <div class="scroll-roller briefing-roller-left"></div>
-            <div class="briefing-paper">
-                <h2 style="font-size: 1.35rem; font-weight: bold; color: #5a2c00; margin-bottom: 18px; border-bottom: 2px dashed rgba(90,63,18,0.25); padding-bottom: 6px; letter-spacing: 2px;">任务目标</h2>
-                <div style="font-size: 0.95rem; line-height: 1.8; color: #4a3424; margin-bottom: 22px; text-align: left; width: 100%; padding-left: 15px;">
-                    <p style="margin-bottom: 8px; font-weight: bold;"><span style="color: #27ae60; margin-right: 8px;">✓</span> 找到全部历史文物</p>
-                    <p style="margin-bottom: 8px; font-weight: bold;"><span style="color: #27ae60; margin-right: 8px;">✓</span> 回答相关历史问题</p>
-                    <p style="margin-bottom: 8px; font-weight: bold;"><span style="color: #27ae60; margin-right: 8px;">✓</span> 解锁下一座遗迹</p>
-                </div>
-                <button class="action-btn" style="margin-top: 0; padding: 10px 32px; font-size: 15px;" onclick="closeBriefingAndStartGame()">开始寻找文物</button>
-            </div>
-            <div class="scroll-roller briefing-roller-right"></div>
         </div>
     </div>
 
@@ -481,111 +424,13 @@
         osc.stop(startTime + duration);
     }
 
-    // 重塑高能海岛探险风格背景音乐
+    // 播放外部背景音乐文件
     function startBGM() {
-        if(!audioCtx) return;
-
-        // 海风音效
-        const bufferSize = audioCtx.sampleRate * 2.0;
-        const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-        const output = noiseBuffer.getChannelData(0);
-        for (let i = 0; i < bufferSize; i++) {
-            output[i] = Math.random() * 2 - 1;
+        const bgMusic = document.getElementById("bgMusic");
+        if (bgMusic) {
+            bgMusic.volume = 0.25;
+            bgMusic.play().catch(() => {});
         }
-        const noiseSrc = audioCtx.createBufferSource();
-        noiseSrc.buffer = noiseBuffer;
-        noiseSrc.loop = true;
-
-        const filter = audioCtx.createBiquadFilter();
-        filter.type = 'lowpass';
-        filter.frequency.setValueAtTime(180, audioCtx.currentTime);
-
-        const lfo = audioCtx.createOscillator();
-        const lfoGain = audioCtx.createGain();
-        lfo.frequency.setValueAtTime(0.08, audioCtx.currentTime); 
-        lfoGain.gain.setValueAtTime(80, audioCtx.currentTime);
-        lfo.connect(lfoGain);
-        lfoGain.connect(filter.frequency);
-
-        const noiseGain = audioCtx.createGain();
-        noiseGain.gain.setValueAtTime(0.06, audioCtx.currentTime); 
-
-        noiseSrc.connect(filter);
-        filter.connect(noiseGain);
-        noiseGain.connect(audioCtx.destination);
-        
-        lfo.start();
-        noiseSrc.start();
-
-        // 模拟鸟鸣
-        function playIslandBirdChirp() {
-            if(!audioCtx || audioCtx.state === 'suspended') return;
-            const now = audioCtx.currentTime;
-            const chirps = 2 + Math.floor(Math.random() * 2);
-            for(let i = 0; i < chirps; i++) {
-                const osc = audioCtx.createOscillator();
-                const g = audioCtx.createGain();
-                const chirpStart = now + i * 0.16;
-                
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(2600 + Math.random() * 300, chirpStart);
-                osc.frequency.exponentialRampToValueAtTime(4600 + Math.random() * 400, chirpStart + 0.08);
-                
-                g.gain.setValueAtTime(0, chirpStart);
-                g.gain.linearRampToValueAtTime(0.012, chirpStart + 0.02);
-                g.gain.exponentialRampToValueAtTime(0.0001, chirpStart + 0.08);
-                
-                osc.connect(g);
-                g.connect(audioCtx.destination);
-                osc.start(chirpStart);
-                osc.stop(chirpStart + 0.1);
-            }
-        }
-
-        const islandScale = [392.00, 440.00, 493.88, 587.33, 659.25, 783.99]; 
-        
-        setInterval(() => {
-            if(!audioCtx || audioCtx.state === 'suspended') return;
-            const now = audioCtx.currentTime;
-            
-            const mFreq = islandScale[Math.floor(Math.random() * islandScale.length)];
-            const mOsc = audioCtx.createOscillator();
-            const mGain = audioCtx.createGain();
-            
-            mOsc.type = 'triangle';
-            mOsc.frequency.setValueAtTime(mFreq, now);
-            mGain.gain.setValueAtTime(0.07, now);
-            mGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.38);
-            
-            mOsc.connect(mGain);
-            mGain.connect(audioCtx.destination);
-            mOsc.start(now);
-            mOsc.stop(now + 0.4);
-
-            if(Math.random() > 0.4) {
-                setTimeout(() => {
-                    const fFreq = islandScale[Math.floor(Math.random() * islandScale.length)] * 2; 
-                    const fOsc = audioCtx.createOscillator();
-                    const fGain = audioCtx.createGain();
-                    
-                    fOsc.type = 'sine';
-                    fOsc.frequency.setValueAtTime(fFreq, audioCtx.currentTime);
-                    
-                    fGain.gain.setValueAtTime(0, audioCtx.currentTime);
-                    fGain.gain.linearRampToValueAtTime(0.03, audioCtx.currentTime + 0.18); 
-                    fGain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 1.1); 
-                    
-                    fOsc.connect(fGain);
-                    fGain.connect(audioCtx.destination);
-                    fOsc.start();
-                    fOsc.stop(audioCtx.currentTime + 1.2);
-                }, 350);
-            }
-
-            if(Math.random() > 0.75) {
-                playIslandBirdChirp();
-            }
-        }, 2400); 
     }
 
     // 2. Magical Treasure Pickup Sound
@@ -723,17 +568,21 @@
             if (!audioCtx) return;
             const osc = audioCtx.createOscillator();
             const g = audioCtx.createGain();
-            const filter = audioCtx.createBiquadFilter();
+            const filter = Math.random() > 0.5 ? audioCtx.createBiquadFilter() : null;
             osc.type = 'triangle';
             osc.frequency.setValueAtTime(120, audioCtx.currentTime);
             osc.frequency.exponentialRampToValueAtTime(600, audioCtx.currentTime + 0.4);
-            filter.type = 'lowpass';
-            filter.frequency.setValueAtTime(450, audioCtx.currentTime);
             g.gain.setValueAtTime(0, audioCtx.currentTime);
             g.gain.linearRampToValueAtTime(0.2, audioCtx.currentTime + 0.15);
             g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.45);
-            osc.connect(filter);
-            filter.connect(g);
+            if (filter) {
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(450, audioCtx.currentTime);
+                osc.connect(filter);
+                filter.connect(g);
+            } else {
+                osc.connect(g);
+            }
             g.connect(audioCtx.destination);
             osc.start();
             osc.stop(audioCtx.currentTime + 0.5);
@@ -787,7 +636,7 @@
 
     let itemsFound = 0;
 
-    // 变动 1：电影级开场流时间控制器 (Cinematic Opening Timeline)
+    // 电影级开场流时间控制器 (Cinematic Opening Timeline)
     const touchToStart = document.getElementById('touch-to-start');
     touchToStart.addEventListener('click', () => {
         touchToStart.style.display = 'none';
@@ -824,7 +673,7 @@
             });
         }
 
-        // Step 2: JACK1.png 缓缓浮现在屏幕右下角 (优化后并列，不遮挡)
+        // Step 2: JACK1.png 缓缓浮现在屏幕右下角
         const mentor = document.getElementById('mentor-npc');
         mentor.classList.add('visible');
         playMentorAppear();
@@ -836,29 +685,17 @@
 
             const textEl = document.getElementById('dialogue-text');
             const lines = [
-                "欢迎来到寻宝岛，探险家。",
-                "这里隐藏着许多失落的历史文物。",
-                "你需要找到它们，",
-                "并回答相关的历史问题。守护好历史的荣光！"
+                "欢迎来到寻宝岛。",
+                "寻找全部历史文物。",
+                "回答相关历史问题。",
+                "准备开始探索吧！"
             ];
 
             runTypewriter(textEl, lines, 0, () => {
-                // Step 4: 话音刚落，一卷微型古图腾藏宝图出现在杰克老师手边
-                setTimeout(() => {
-                    diagBox.classList.remove('visible'); // 优雅隐退对话框
-                    
-                    const scroll = document.getElementById('cinematicScrollBriefing');
-                    scroll.classList.add('spawned');
-                    playWhooshSFX();
-
-                    // Step 5: 藏宝图在魔法碎金中向屏幕中央神圣展开
-                    setTimeout(() => {
-                        scroll.classList.remove('spawned');
-                        scroll.classList.add('unfolded');
-                        playUnfoldChimesSFX();
-                    }, 900);
-
-                }, 2200); // 预留时间供学生翻阅长对话
+                // 对话结束后直接平滑淡入游戏界面（不弹出任何提示卷轴）
+                autoStartTimeout = setTimeout(() => {
+                    proceedToGameDirectly();
+                }, 1500);
             });
         }, 1000);
     }
@@ -879,13 +716,20 @@
         completedHTML: "" 
     };
 
+    let dialogueFullyDone = false;
+    let autoStartTimeout = null;
+
     function runTypewriter(element, linesArray, lineIdx, onDone) {
         if (lineIdx === 0) {
+            dialogueFullyDone = false;
             typewriterState.element = element;
             typewriterState.lines = linesArray;
             typewriterState.currentLineIdx = 0;
             typewriterState.completedHTML = "";
-            typewriterState.onDone = onDone;
+            typewriterState.onDone = () => {
+                dialogueFullyDone = true;
+                onDone();
+            };
         }
         startTypingLine(lineIdx);
     }
@@ -949,13 +793,20 @@
 
     function skipDialogue() {
         if (typewriterState.isTyping) {
-            // Click during typing: immediately reveal the entire current line
+            // 输入中点击：立即显示完整句子
             finishCurrentLine();
         } else if (typewriterState.isWaiting) {
-            // Click during delay: skip the wait and proceed to next sentence immediately
+            // 句子间等待时点击：跳过等待进入下一句
             typewriterState.isWaiting = false;
             if (typewriterState.waitingTimeout) clearTimeout(typewriterState.waitingTimeout);
             startTypingLine(typewriterState.currentLineIdx + 1);
+        } else if (dialogueFullyDone) {
+            // 已完全播放完毕且正在等待过渡时点击：直接切入游戏
+            if (autoStartTimeout) {
+                clearTimeout(autoStartTimeout);
+                autoStartTimeout = null;
+            }
+            proceedToGameDirectly();
         }
     }
 
@@ -979,22 +830,20 @@
         }, 1000);
     }
 
-    // Step 6: 点击开始寻找文物，闭合卷轴并无缝切入第一关游戏
-    function closeBriefingAndStartGame() {
+    // 平滑淡出所有引导层，直接切入第一关游戏
+    function proceedToGameDirectly() {
         playStartFlourish(() => {
-            const scroll = document.getElementById('cinematicScrollBriefing');
+            const diagBox = document.getElementById('dialogue-box');
             const mentor = document.getElementById('mentor-npc');
             const startScreen = document.getElementById('start-screen');
             
-            // 地图平滑合拢
-            scroll.classList.remove('unfolded');
-            scroll.classList.add('spawned');
-            
-            setTimeout(() => {
-                // 杰克老师及遮罩彻底淡出
-                scroll.style.opacity = '0';
+            if (diagBox) diagBox.classList.remove('visible');
+            if (mentor) {
                 mentor.classList.remove('visible');
                 mentor.style.opacity = '0';
+            }
+            
+            if (startScreen) {
                 startScreen.style.transition = 'opacity 0.5s ease';
                 startScreen.style.opacity = '0';
                 
@@ -1002,18 +851,17 @@
                     startScreen.style.display = 'none';
                     // 记录第一关起步时间并开启探险
                     level1StartTime = Date.now();
-                    startVisualTimer(); // QoL implementation: start visible timer
+                    startVisualTimer(); 
                 }, 500);
-            }, 800);
+            }
         });
     }
 
     function startGame() {
-        // 保留原入口声明以防直接测试报错，已通过 touchToStart 接管起步
+        // 保留原入口声明以防直接测试报错
     }
 
-    // [核心变动]：游戏世界在加载时立即构建
-    // 所有的文物都会静默隐藏在环境地图中，不会在玩家点击“开始寻找文物”时由于突然弹窗生成而泄漏位置。
+    // 游戏世界在加载时立即构建
     function buildGameWorld() {
         const findPanel = document.getElementById('find-panel');
         const objectsLayer = document.getElementById('objects-layer');
@@ -1190,6 +1038,20 @@
     if (dialogueBox) {
         dialogueBox.addEventListener('click', skipDialogue);
     }
+
+    // 针对第一次交互播放音乐的安全垫片
+    document.addEventListener("click", () => {
+        const bgMusic = document.getElementById("bgMusic");
+        if (bgMusic && bgMusic.paused) {
+            bgMusic.volume = 0.25;
+            bgMusic.play().catch(() => {});
+        }
+    }, { once: true });
 </script>
+
+<audio id="bgMusic" loop>
+    <source src="game-bgm.mp3" type="audio/mpeg">
+</audio>
+
 </body>
 </html>
