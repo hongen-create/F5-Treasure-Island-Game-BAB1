@@ -2,10 +2,101 @@
 <html lang="zh">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="refresh" content="0;url=introduction.html">
     <title>游戏加载中...</title>
+    <script>
+        // Global GAME CONFIG object
+        const GAME_CONFIG = {
+            form: "Form 5",
+            chapter: "Bab 1"
+        };
+
+        const SESSION_KEY = 'sovereigns_relic_session';
+
+        function generateAttemptId() {
+            const now = new Date();
+            const yyyy = now.getFullYear();
+            const mm = String(now.getMonth() + 1).padStart(2, '0');
+            const dd = String(now.getDate()).padStart(2, '0');
+            const dateStr = `${yyyy}${mm}${dd}`;
+            return `HIS-${dateStr}-${Date.now()}`;
+        }
+
+        function createDefaultSession() {
+            return {
+                attemptId: generateAttemptId(),
+                date: new Date().toISOString(),
+                completedStatus: false,
+                googleSheetUploaded: false,
+                level1Score: 0,
+                level1Time: 0,
+                transitScore: 0,
+                transitTime: 0,
+                level2Score: 0,
+                level2Time: 0,
+                totalTime: 0,
+                q1_q5_answers: [
+                    { "questionId": "Q1", "answer": "" },
+                    { "questionId": "Q2", "answer": "" },
+                    { "questionId": "Q3", "answer": "" },
+                    { "questionId": "Q4", "answer": "" },
+                    { "questionId": "Q5", "answer": "" }
+                ],
+                learningType: '',
+                name: '',
+                phone: '',
+                email: '',
+                // Injected config variables for Google Sheet compatibility
+                form: GAME_CONFIG.form,
+                chapter: GAME_CONFIG.chapter,
+                Form: GAME_CONFIG.form,
+                Chapter: GAME_CONFIG.chapter,
+                gameConfig: GAME_CONFIG
+            };
+        }
+
+        function initConfigAndRedirect() {
+            try {
+                // 1. Save standard keys directly to localStorage for fallback access
+                localStorage.setItem('Form', GAME_CONFIG.form);
+                localStorage.setItem('Chapter', GAME_CONFIG.chapter);
+                localStorage.setItem('game_form', GAME_CONFIG.form);
+                localStorage.setItem('game_chapter', GAME_CONFIG.chapter);
+                localStorage.setItem('game_config', JSON.stringify(GAME_CONFIG));
+                localStorage.setItem('gameConfig', JSON.stringify(GAME_CONFIG));
+
+                // 2. Safely initialize or merge configuration values into the core session
+                let sessionStr = localStorage.getItem(SESSION_KEY);
+                let session;
+
+                if (sessionStr) {
+                    try {
+                        session = JSON.parse(sessionStr);
+                        session.form = GAME_CONFIG.form;
+                        session.chapter = GAME_CONFIG.chapter;
+                        session.Form = GAME_CONFIG.form;
+                        session.Chapter = GAME_CONFIG.chapter;
+                        session.gameConfig = GAME_CONFIG;
+                    } catch (e) {
+                        session = createDefaultSession();
+                    }
+                } else {
+                    session = createDefaultSession();
+                }
+
+                localStorage.setItem(SESSION_KEY, JSON.stringify(session));
+            } catch (err) {
+                console.error("Configuration storage error:", err);
+            }
+
+            // 3. Programmatic redirect
+            window.location.href = "introduction.html";
+        }
+
+        // Initialize immediately during parsing
+        initConfigAndRedirect();
+    </script>
 </head>
 <body>
-    <p>正在加载游戏，请稍候... 如果没有自动跳转，请<a href="introduction.html">点击这里</a>。</p>
+    <p>正在加载游戏，请稍候... 如果没有自动跳转，请<a href="introduction.html" onclick="initConfigAndRedirect(); return true;">点击这里</a>。</p>
 </body>
 </html>
