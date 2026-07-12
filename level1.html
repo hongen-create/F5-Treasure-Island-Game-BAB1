@@ -1,4 +1,3 @@
---- START OF FILE level1.html ---
 <!DOCTYPE html>
 <html lang="zh">
 <head>
@@ -8,6 +7,10 @@
     <style>
         /* 核心重置 / CORE RESET */
         * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; font-family: 'Palatino Linotype', 'Book Antiqua', serif, 'Microsoft YaHei'; }
+        html, body {
+            width: 100%;
+            height: 100%;
+        }
         body { 
             background-color: #000; 
             display: flex; 
@@ -16,6 +19,11 @@
             height: 100vh; 
             height: 100dvh; 
             overflow: hidden; 
+        }
+
+        /* Ensure non-flow elements are completely excluded from the flex layout calculation */
+        audio, script {
+            display: none !important;
         }
 
         /* --- PRELOADER STYLES --- */
@@ -336,6 +344,9 @@
             // 2. Hide loading screen and show game container
             document.getElementById('loading-screen').style.display = 'none';
             document.getElementById('game-container').style.display = 'block';
+
+            // Recalculate canvas size now that game container is displayed
+            resizePCanvas();
 
             // 3. Ready to start
             const touchToStart = document.getElementById('touch-to-start');
