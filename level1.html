@@ -1,3 +1,4 @@
+--- START OF FILE level1.html ---
 <!DOCTYPE html>
 <html lang="zh">
 <head>
@@ -13,18 +14,47 @@
             justify-content: center; 
             align-items: center; 
             height: 100vh; 
-            height: 100dvh; /* Modern dynamic viewport unit fallback */
+            height: 100dvh; 
             overflow: hidden; 
         }
 
-        /* 游戏主容器 / GAME CONTAINER (9:16) */
+        /* --- PRELOADER STYLES --- */
+        #loading-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #050505;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            color: #d4af37;
+            text-align: center;
+        }
+
+        .loader-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(212, 175, 55, 0.1);
+            border-top: 3px solid #d4af37;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .loading-text { font-size: 18px; letter-spacing: 2px; margin-bottom: 8px; }
+        .loading-subtext { font-size: 12px; color: #8b6508; letter-spacing: 1px; }
+
+        /* 游戏主容器 / GAME CONTAINER (Initially Hidden) */
         #game-container {
+            display: none; /* Hidden until assets loaded */
             width: 100%; max-width: 450px; 
             height: 100vh; 
-            height: 100dvh; /* Adjusts dynamically to mobile browser address bars */
+            height: 100dvh; 
             max-height: 900px;
             position: relative; overflow: hidden;
-            /* 使用本地背景图 / Using local background asset */
             background-image: url('treasure-island-background.webp');
             background-size: cover;
             background-position: center;
@@ -136,7 +166,7 @@
         
         .action-btn:active { transform: scale(0.95); }
 
-        /* --- 电影级开场样式 (两栏优化排版) --- */
+        /* --- 电影级开场样式 --- */
         #mentor-npc {
             position: absolute; bottom: -5px; right: 10px; width: 110px; height: auto;
             z-index: 205; opacity: 0; transform: translateY(30px);
@@ -150,119 +180,64 @@
             animation: npcFloat 4s ease-in-out infinite alternate;
         }
 
-        /* 优化位置避免与导师卡片重合 */
         #dialogue-box {
             position: absolute; bottom: 25px; left: 12px; right: 130px;
             background: rgba(12, 20, 16, 0.96); border: 1px solid rgba(212, 175, 55, 0.5);
             border-radius: 6px; padding: 12px; z-index: 210; opacity: 0;
             transform: translateY(20px); transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
             box-shadow: 0 10px 25px rgba(0,0,0,0.8);
-            cursor: pointer; /* added QoL cursor style */
+            cursor: pointer;
         }
         #dialogue-box.visible { opacity: 1; transform: translateY(0); }
 
-        /* 滚屏及溢出指示辅助样式 */
-        .dialogue-text-wrapper {
-            position: relative;
-            margin-top: 4px;
-        }
+        .dialogue-text-wrapper { position: relative; margin-top: 4px; }
         #dialogue-text {
-            font-size: 13px;
-            line-height: 1.6;
-            color: #e2d7c5;
-            letter-spacing: 1px;
-            max-height: 85px;
-            overflow-y: auto;
-            padding-right: 6px;
-            scroll-behavior: smooth;
+            font-size: 13px; line-height: 1.6; color: #e2d7c5;
+            letter-spacing: 1px; max-height: 85px; overflow-y: auto; padding-right: 6px; scroll-behavior: smooth;
         }
-        /* 游戏风格：暗黑幻想金色滚动条 */
-        #dialogue-text::-webkit-scrollbar {
-            width: 4px;
-        }
-        #dialogue-text::-webkit-scrollbar-track {
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 2px;
-        }
-        #dialogue-text::-webkit-scrollbar-thumb {
-            background: linear-gradient(180deg, #d4af37, #8b6508);
-            border-radius: 2px;
-            border: 1px solid rgba(255, 223, 112, 0.3);
-        }
-        /* 底端溢出遮罩，暗示还有后续内容 */
+        #dialogue-text::-webkit-scrollbar { width: 4px; }
+        #dialogue-text::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.3); }
+        #dialogue-text::-webkit-scrollbar-thumb { background: linear-gradient(180deg, #d4af37, #8b6508); }
+        
         .dialogue-fade-overlay {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 15px;
+            position: absolute; bottom: 0; left: 0; right: 0; height: 15px;
             background: linear-gradient(to top, rgba(12, 20, 16, 0.98), transparent);
-            pointer-events: none;
-            opacity: 0;
-            transition: opacity 0.3s ease;
+            pointer-events: none; opacity: 0; transition: opacity 0.3s ease;
         }
-        .dialogue-fade-overlay.visible {
-            opacity: 1;
-        }
-        /* ⬇ 滑动提示气泡样式 */
+        .dialogue-fade-overlay.visible { opacity: 1; }
+        
         .dialogue-scroll-indicator {
-            position: absolute;
-            bottom: -22px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 10px;
-            color: #ffdf70;
-            background: rgba(12, 20, 16, 0.95);
-            border: 1px solid rgba(212, 175, 55, 0.4);
-            padding: 2px 8px;
-            border-radius: 10px;
-            pointer-events: none;
-            opacity: 0;
-            transition: opacity 0.3s ease, transform 0.3s ease;
-            white-space: nowrap;
-            letter-spacing: 1px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.5);
-            animation: bounceIndicator 1.5s infinite alternate;
+            position: absolute; bottom: -22px; left: 50%; transform: translateX(-50%);
+            font-size: 10px; color: #ffdf70; background: rgba(12, 20, 16, 0.95);
+            border: 1px solid rgba(212, 175, 55, 0.4); padding: 2px 8px; border-radius: 10px;
+            pointer-events: none; opacity: 0; transition: opacity 0.3s ease;
+            white-space: nowrap; letter-spacing: 1px; animation: bounceIndicator 1.5s infinite alternate;
         }
-        .dialogue-scroll-indicator.visible {
-            opacity: 1;
-        }
-        @keyframes bounceIndicator {
-            0% { transform: translateX(-50%) translateY(0); }
-            100% { transform: translateX(-50%) translateY(3px); }
-        }
+        .dialogue-scroll-indicator.visible { opacity: 1; }
+        @keyframes bounceIndicator { 0% { transform: translateX(-50%) translateY(0); } 100% { transform: translateX(-50%) translateY(3px); } }
 
-        /* --- MOBILE LAYOUT FINE-TUNING OVERRIDES --- */
         @media (max-width: 768px) {
-            #mentor-npc {
-                width: 95px;       /* Scaled down roughly 14% to fit mobile bounds */
-                bottom: 12px;      /* Raised 17px to prevent safe-area / folding line cut-off */
-                right: 8px;        /* Tighter alignment margin */
-            }
-            #dialogue-box {
-                right: 110px;      /* Expanded text field to utilize space saved by smaller portrait */
-                left: 10px;        
-                bottom: 25px;      
-                padding: 10px;     /* Optimized padding footprint */
-            }
-            #dialogue-text {
-                font-size: 12.5px; /* Compact mobile typography */
-                line-height: 1.5;
-                max-height: 75px;  /* Compact vertical boundary */
-            }
+            #mentor-npc { width: 95px; bottom: 12px; right: 8px; }
+            #dialogue-box { right: 110px; left: 10px; bottom: 25px; padding: 10px; }
+            #dialogue-text { font-size: 12.5px; line-height: 1.5; max-height: 75px; }
         }
     </style>
 </head>
 <body>
 
+<!-- PRELOADER -->
+<div id="loading-screen">
+    <div class="loader-spinner"></div>
+    <div class="loading-text">Loading...</div>
+    <div class="loading-subtext">Preparing the expedition...</div>
+</div>
+
 <div id="game-container">
     
     <div class="vignette"></div>
 
-    <!-- 视觉计时器 / VISUAL TIMER -->
     <div id="visual-timer" style="display: none; position: absolute; top: 15px; left: 50%; transform: translateX(-50%); background: rgba(15, 10, 5, 0.75); border: 1px solid #8b6508; border-radius: 20px; padding: 5px 12px; color: #ffdf70; font-family: 'Palatino Linotype', 'Book Antiqua', serif; font-size: 14px; font-weight: bold; z-index: 100; box-shadow: 0 4px 10px rgba(0,0,0,0.5); pointer-events: none; letter-spacing: 1px;">⏱ 00:00</div>
 
-    <!-- 粒子特效层（Step 1 环境烘托） -->
     <canvas id="particleCanvas" style="position: absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index: 5;"></canvas>
 
     <div id="find-panel"></div>
@@ -273,25 +248,20 @@
         <div class="scroll-content">
             <h3 id="question-text"></h3>
             <div id="options-container"></div>
-            <!-- Continue Button / 隐藏的继续按钮 -->
             <button id="continue-btn" class="action-btn" style="display: none; margin: 15px auto 0 auto; padding: 10px 25px; font-size: 15px;">继续寻找文物</button>
         </div>
     </div>
 
-    <!-- 电影级开场样式 (不包含任务说明卷轴) -->
     <div id="start-screen" class="screen" style="background: transparent;">
-        <!-- 点击屏幕以启动仪式（遵守音频Autoplay安全规范） -->
         <div id="touch-to-start" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 300; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer;">
             <div style="font-size: 14px; color: #ffd700; letter-spacing: 2px; margin-bottom: 4px; text-shadow: 0 0 8px rgba(255, 215, 0, 0.4);">第一关 · 寻宝岛</div>
             <div style="font-size: 1.1rem; color: #ffe066; letter-spacing: 2px; animation: pulseTransition 1.2s infinite alternate;">点击屏幕 · 启动任务说明</div>
         </div>
 
-        <!-- NPC JACK老师 3D质感卡片 -->
         <div id="mentor-npc">
             <img src="JACK1.png" alt="JACK老师" class="npc-image">
         </div>
 
-        <!-- 导师打字机对话框 -->
         <div id="dialogue-box">
             <div style="font-size: 11px; color: #ffd700; letter-spacing: 1px; margin-bottom: 3px;">历史守护者联盟导师</div>
             <div style="font-size: 14px; color: #ffffff; font-weight: bold; letter-spacing: 2px; margin-bottom: 8px;">万能教·JACK老师</div>
@@ -303,7 +273,6 @@
         </div>
     </div>
 
-    <!-- 变动 4：任务完成圣光过渡层 -->
     <div id="transition-screen" class="screen" style="display: none; background: radial-gradient(circle at center, rgba(18, 30, 24, 0.96) 0%, rgba(2, 4, 3, 1) 100%); z-index: 250;">
         <div style="position: relative; width: 100px; height: 100px; margin-bottom: 25px; display: flex; justify-content: center; align-items: center;">
             <div style="position: absolute; width: 70px; height: 70px; background: radial-gradient(circle, #ffd700 0%, transparent 70%); filter: blur(8px); animation: pulseTransition 1.5s infinite alternate;"></div>
@@ -316,13 +285,8 @@
 </div>
 
 <script>
-    /* ==========================================
-       STORAGE FOUNDATION DRIVERS & GAME DATA
-       ========================================== */
     const SESSION_KEY = 'sovereigns_relic_session';
     
-    // 游戏数据 (5 Items & 5 Questions covering structural map coordinates nicely)
-    // Declared at the absolute top of the script scope to avoid the Temporal Dead Zone (TDZ)
     const gameData = [
         { id: 'key', src: 'golden-key.png', x: 20, y: 85, q: "Apakah maksud Sovereignty dalam bahasa Inggeris?", opts: ["Negara berhak menentukan sempadan", "Negara bersatu menentang penceroboh", "Negara berkuasa penuh dalam pentadbiran", "Negara berjuang menuntut kemerdekaan"], ans: 2 },
         { id: 'coin', src: 'pirate-coin.png', x: 80, y: 55, q: "Apakah perundangan yang menjadi asas kepada sistem peraturan negara kita?", opts: ["Undang-undang adat", "Hukum Kanun Melaka", "Undang-undang syariah", "Perlembagaan Persekutuan"], ans: 3 },
@@ -334,14 +298,57 @@
     let level1StartTime = 0;
     let level1CorrectCount = 0;
 
+    // --- ASSET PRELOADER SYSTEM ---
+    const assetsToLoad = [
+        'treasure-island-background.webp',
+        'JACK1.png',
+        'golden-key.png',
+        'pirate-coin.png',
+        'lantern.png',
+        'curved-sword.png',
+        'treasure-chest.png'
+    ];
+
+    function preloadAssets(urls, callback) {
+        let loadedCounter = 0;
+        const total = urls.length;
+        if (total === 0) return callback();
+
+        urls.forEach(url => {
+            const img = new Image();
+            img.onload = img.onerror = () => {
+                loadedCounter++;
+                if (loadedCounter === total) {
+                    callback();
+                }
+            };
+            img.src = url;
+        });
+    }
+
+    // Initialize Game sequence after preloading
+    window.addEventListener('load', () => {
+        preloadAssets(assetsToLoad, () => {
+            // 1. Build the world
+            buildGameWorld();
+            loadGameSession();
+            
+            // 2. Hide loading screen and show game container
+            document.getElementById('loading-screen').style.display = 'none';
+            document.getElementById('game-container').style.display = 'block';
+
+            // 3. Ready to start
+            const touchToStart = document.getElementById('touch-to-start');
+            touchToStart.addEventListener('click', () => {
+                touchToStart.style.display = 'none';
+                triggerCinematicOpening();
+            });
+        });
+    });
+
     function generateAttemptId() {
         const now = new Date();
-        const yyyy = now.getFullYear();
-        const mm = String(now.getMonth() + 1).padStart(2, '0');
-        const dd = String(now.getDate()).padStart(2, '0');
-        const dateStr = `${yyyy}${mm}${dd}`;
-                
-        return `HIS-${dateStr}-${Date.now()}`;
+        return `HIS-${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}-${Date.now()}`;
     }
 
     function createDefaultSession() {
@@ -357,17 +364,8 @@
             level2Score: 0,
             level2Time: 0,
             totalTime: 0,
-            q1_q5_answers: [
-                { "questionId": "Q1", "answer": "" },
-                { "questionId": "Q2", "answer": "" },
-                { "questionId": "Q3", "answer": "" },
-                { "questionId": "Q4", "answer": "" },
-                { "questionId": "Q5", "answer": "" }
-            ],
-            learningType: '',
-            name: '',
-            phone: '',
-            email: ''
+            q1_q5_answers: [{ "questionId": "Q1", "answer": "" },{ "questionId": "Q2", "answer": "" },{ "questionId": "Q3", "answer": "" },{ "questionId": "Q4", "answer": "" },{ "questionId": "Q5", "answer": "" }],
+            learningType: '', name: '', phone: '', email: ''
         };
     }
 
@@ -380,449 +378,122 @@
         return JSON.parse(session);
     }
 
-    function saveGameSession(sessionData) {
-        localStorage.setItem(SESSION_KEY, JSON.stringify(sessionData));
-    }
+    function saveGameSession(sessionData) { localStorage.setItem(SESSION_KEY, JSON.stringify(sessionData)); }
+    function loadGameSession() { const session = localStorage.getItem(SESSION_KEY); return session ? JSON.parse(session) : initializeGameSession(); }
 
-    function loadGameSession() {
-        const session = localStorage.getItem(SESSION_KEY);
-        return session ? JSON.parse(session) : initializeGameSession();
-    }
-
-    function resetGameSession() {
-        const newSession = createDefaultSession();
-        localStorage.setItem(SESSION_KEY, JSON.stringify(newSession));
-        return newSession;
-    }
-
-    /* ==========================================
-       AUDIO ENGINE PATCH (Web Audio API) 
-       ========================================== */
+    /* AUDIO ENGINE */
     let audioCtx;
-    
-    function initAudio() {
-        if (!audioCtx) {
-            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        }
-        if (audioCtx.state === 'suspended') {
-            audioCtx.resume();
-        }
-    }
-
-    // Generic Note Generator
+    function initAudio() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); if (audioCtx.state === 'suspended') audioCtx.resume(); }
     function playNote(freq, type, duration, vol, startTime) {
         if(!audioCtx) return;
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
-        osc.type = type;
-        osc.frequency.setValueAtTime(freq, startTime);
-        gain.gain.setValueAtTime(vol, startTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, startTime + duration);
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start(startTime);
-        osc.stop(startTime + duration);
+        osc.type = type; osc.frequency.setValueAtTime(freq, startTime);
+        gain.gain.setValueAtTime(vol, startTime); gain.gain.exponentialRampToValueAtTime(0.01, startTime + duration);
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.start(startTime); osc.stop(startTime + duration);
     }
+    function startBGM() { const bgMusic = document.getElementById("bgMusic"); if (bgMusic) { bgMusic.volume = 0.25; bgMusic.play().catch(() => {}); } }
+    function playPickup() { if(!audioCtx) return; const t = audioCtx.currentTime; playNote(523.25, 'sine', 0.15, 0.1, t); playNote(659.25, 'sine', 0.15, 0.1, t + 0.1); playNote(783.99, 'sine', 0.3, 0.1, t + 0.2); }
+    function playPopup() { if(!audioCtx) return; const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); osc.type = 'sine'; osc.frequency.setValueAtTime(300, audioCtx.currentTime); osc.frequency.exponentialRampToValueAtTime(600, audioCtx.currentTime + 0.5); gain.gain.setValueAtTime(0, audioCtx.currentTime); gain.gain.linearRampToValueAtTime(0.15, audioCtx.currentTime + 0.2); gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.5); osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 0.5); }
+    function playCorrect() { if(!audioCtx) return; const t = audioCtx.currentTime; playNote(523.25, 'triangle', 0.5, 0.2, t); playNote(659.25, 'triangle', 0.5, 0.2, t); playNote(783.99, 'triangle', 0.5, 0.2, t); playNote(1046.50, 'triangle', 0.8, 0.2, t + 0.1); }
+    function playWrong() { if(!audioCtx) return; const t = audioCtx.currentTime; playNote(150, 'sawtooth', 0.3, 0.15, t); playNote(100, 'sawtooth', 0.4, 0.15, t + 0.2); }
+    function playComplete() { if(!audioCtx) return; const t = audioCtx.currentTime; playNote(523.25, 'sine', 0.3, 0.2, t); playNote(659.25, 'sine', 0.3, 0.2, t + 0.2); playNote(783.99, 'sine', 0.3, 0.2, t + 0.4); playNote(1046.50, 'triangle', 1.5, 0.3, t + 0.6); }
+    function playTypewriterTick() { if (!audioCtx) return; const osc = audioCtx.createOscillator(); const g = audioCtx.createGain(); osc.type = 'sine'; osc.frequency.setValueAtTime(1400 + Math.random() * 200, audioCtx.currentTime); g.gain.setValueAtTime(0.004, audioCtx.currentTime); g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.02); osc.connect(g); g.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 0.03); }
+    function playMentorAppear() { if (!audioCtx) return; const osc = audioCtx.createOscillator(); const g = audioCtx.createGain(); osc.type = 'triangle'; osc.frequency.setValueAtTime(220, audioCtx.currentTime); osc.frequency.exponentialRampToValueAtTime(440, audioCtx.currentTime + 0.8); g.gain.setValueAtTime(0, audioCtx.currentTime); g.gain.linearRampToValueAtTime(0.12, audioCtx.currentTime + 0.3); g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 1.0); osc.connect(g); g.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 1.1); }
+    function playStartFlourish(onDone) { if (!audioCtx) { onDone(); return; } const now = audioCtx.currentTime; [523.25, 659.25, 783.99, 1046.50, 1318.51].forEach((freq, idx) => { const osc = audioCtx.createOscillator(); const g = audioCtx.createGain(); const noteTime = now + idx * 0.05; osc.type = 'triangle'; osc.frequency.setValueAtTime(freq, noteTime); g.gain.setValueAtTime(0, noteTime); g.gain.linearRampToValueAtTime(0.08, noteTime + 0.02); g.gain.exponentialRampToValueAtTime(0.001, noteTime + 0.4); osc.connect(g); g.connect(audioCtx.destination); osc.start(noteTime); osc.stop(noteTime + 0.45); }); setTimeout(onDone, 450); }
 
-    // 播放外部背景音乐文件
-    function startBGM() {
-        const bgMusic = document.getElementById("bgMusic");
-        if (bgMusic) {
-            bgMusic.volume = 0.25;
-            bgMusic.play().catch(() => {});
-        }
-    }
-
-    // 2. Magical Treasure Pickup Sound
-    function playPickup() {
-        if(!audioCtx) return;
-        const t = audioCtx.currentTime;
-        playNote(523.25, 'sine', 0.15, 0.1, t); // C5
-        playNote(659.25, 'sine', 0.15, 0.1, t + 0.1); // E5
-        playNote(783.99, 'sine', 0.3, 0.1, t + 0.2); // G5
-    }
-
-    // 3. Mystical Rune Sound (Popup opening)
-    function playPopup() {
-        if(!audioCtx) return;
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(300, audioCtx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(600, audioCtx.currentTime + 0.5);
-        gain.gain.setValueAtTime(0, audioCtx.currentTime);
-        gain.gain.linearRampToValueAtTime(0.15, audioCtx.currentTime + 0.2);
-        gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.5);
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start();
-        osc.stop(audioCtx.currentTime + 0.5);
-    }
-
-    // 4. Magical Success Chime (Correct Answer)
-    function playCorrect() {
-        if(!audioCtx) return;
-        const t = audioCtx.currentTime;
-        playNote(523.25, 'triangle', 0.5, 0.2, t); 
-        playNote(659.25, 'triangle', 0.5, 0.2, t); 
-        playNote(783.99, 'triangle', 0.5, 0.2, t); 
-        playNote(1046.50, 'triangle', 0.8, 0.2, t + 0.1); // Bright C6
-    }
-
-    // 5. Soft Dark Buzz (Wrong Answer)
-    function playWrong() {
-        if(!audioCtx) return;
-        const t = audioCtx.currentTime;
-        playNote(150, 'sawtooth', 0.3, 0.15, t);
-        playNote(100, 'sawtooth', 0.4, 0.15, t + 0.2);
-    }
-
-    // 6. Treasure Unlock Sound (Level Complete)
-    function playComplete() {
-        if(!audioCtx) return;
-        const t = audioCtx.currentTime;
-        playNote(523.25, 'sine', 0.3, 0.2, t);
-        playNote(659.25, 'sine', 0.3, 0.2, t + 0.2);
-        playNote(783.99, 'sine', 0.3, 0.2, t + 0.4);
-        playNote(1046.50, 'triangle', 1.5, 0.3, t + 0.6); // Epic final chord
-        playNote(1318.51, 'sine', 1.5, 0.3, t + 0.6);
-    }
-
-    // 7. Magical Portal Whoosh (Transition)
     function transitionToNextLevel() {
-        if (timerInterval) clearInterval(timerInterval); // stop visual timer
-        if(audioCtx) {
-            const bufferSize = audioCtx.sampleRate * 1.5;
-            const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-            const output = noiseBuffer.getChannelData(0);
-            for (let i = 0; i < bufferSize; i++) { output[i] = Math.random() * 2 - 1; }
-            const noiseSrc = audioCtx.createBufferSource();
-            noiseSrc.buffer = noiseBuffer;
-            
-            const filter = audioCtx.createBiquadFilter();
-            filter.type = 'bandpass';
-            filter.frequency.setValueAtTime(100, audioCtx.currentTime);
-            filter.frequency.exponentialRampToValueAtTime(2500, audioCtx.currentTime + 0.8);
-            filter.Q.value = 1.0;
-
-            const gain = audioCtx.createGain();
-            gain.gain.setValueAtTime(0, audioCtx.currentTime);
-            gain.gain.linearRampToValueAtTime(0.6, audioCtx.currentTime + 0.5);
-            gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 1.2);
-
-            noiseSrc.connect(filter);
-            filter.connect(gain);
-            gain.connect(audioCtx.destination);
-            noiseSrc.start();
-        }
-        
-        // Wait for whoosh to peak, then transition
-        setTimeout(() => {
-            const elapsedSeconds = Math.round((Date.now() - level1StartTime) / 1000);
-            let session = loadGameSession();
-            session.level1Score = level1CorrectCount;
-            session.level1Time = elapsedSeconds;
-            saveGameSession(session);
-
-            window.location.href = 'level1_summary.html';
-        }, 800);
+        if (timerInterval) clearInterval(timerInterval);
+        const elapsedSeconds = Math.round((Date.now() - level1StartTime) / 1000);
+        let session = loadGameSession();
+        session.level1Score = level1CorrectCount;
+        session.level1Time = elapsedSeconds;
+        saveGameSession(session);
+        window.location.href = 'level1_summary.html';
     }
-
-    // 新增音效合成（打字机、导师出场、风声、金铃）
-    function playTypewriterTick() {
-        try {
-            if (!audioCtx || audioCtx.state === 'suspended') return;
-            const osc = audioCtx.createOscillator();
-            const g = audioCtx.createGain();
-            osc.type = 'sine';
-            osc.frequency.setValueAtTime(1400 + Math.random() * 200, audioCtx.currentTime);
-            g.gain.setValueAtTime(0.004, audioCtx.currentTime);
-            g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.02);
-            osc.connect(g);
-            g.connect(audioCtx.destination);
-            osc.start();
-            osc.stop(audioCtx.currentTime + 0.03);
-        } catch(e) {}
-    }
-
-    function playMentorAppear() {
-        try {
-            if (!audioCtx || audioCtx.state === 'suspended') return;
-            const osc = audioCtx.createOscillator();
-            const g = audioCtx.createGain();
-            osc.type = 'triangle';
-            osc.frequency.setValueAtTime(220, audioCtx.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(440, audioCtx.currentTime + 0.8);
-            g.gain.setValueAtTime(0, audioCtx.currentTime);
-            g.gain.linearRampToValueAtTime(0.12, audioCtx.currentTime + 0.3);
-            g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 1.0);
-            osc.connect(g);
-            g.connect(audioCtx.destination);
-            osc.start();
-            osc.stop(audioCtx.currentTime + 1.1);
-        } catch(e) {}
-    }
-
-    function playWhooshSFX() {
-        try {
-            if (!audioCtx) return;
-            const osc = audioCtx.createOscillator();
-            const g = audioCtx.createGain();
-            const filter = Math.random() > 0.5 ? audioCtx.createBiquadFilter() : null;
-            osc.type = 'triangle';
-            osc.frequency.setValueAtTime(120, audioCtx.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(600, audioCtx.currentTime + 0.4);
-            g.gain.setValueAtTime(0, audioCtx.currentTime);
-            g.gain.linearRampToValueAtTime(0.2, audioCtx.currentTime + 0.15);
-            g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.45);
-            if (filter) {
-                filter.type = 'lowpass';
-                filter.frequency.setValueAtTime(450, audioCtx.currentTime);
-                osc.connect(filter);
-                filter.connect(g);
-            } else {
-                osc.connect(g);
-            }
-            g.connect(audioCtx.destination);
-            osc.start();
-            osc.stop(audioCtx.currentTime + 0.5);
-        } catch(e) {}
-    }
-
-    function playUnfoldChimesSFX() {
-        try {
-            if (!audioCtx) return;
-            const startTime = audioCtx.currentTime;
-            for (let i = 0; i < 6; i++) {
-                const noteDelay = i * 0.08;
-                const osc = audioCtx.createOscillator();
-                const g = audioCtx.createGain();
-                osc.type = 'sine';
-                const goldenFreqs = [880.00, 1046.50, 1174.66, 1318.51, 1567.98];
-                const freq = goldenFreqs[Math.floor(Math.random() * goldenFreqs.length)];
-                osc.frequency.setValueAtTime(freq, startTime + noteDelay);
-                g.gain.setValueAtTime(0, startTime + noteDelay);
-                g.gain.linearRampToValueAtTime(0.03, startTime + noteDelay + 0.02);
-                g.gain.exponentialRampToValueAtTime(0.0001, startTime + noteDelay + 0.25);
-                osc.connect(g);
-                g.connect(audioCtx.destination);
-                osc.start(startTime + noteDelay);
-                osc.stop(startTime + noteDelay + 0.3);
-            }
-        } catch(e) {}
-    }
-
-    function playStartFlourish(onDone) {
-        if (!audioCtx) { onDone(); return; }
-        const now = audioCtx.currentTime;
-        const arpeggio = [523.25, 659.25, 783.99, 1046.50, 1318.51];
-        arpeggio.forEach((freq, idx) => {
-            const osc = audioCtx.createOscillator();
-            const g = audioCtx.createGain();
-            const noteTime = now + idx * 0.05;
-            osc.type = 'triangle';
-            osc.frequency.setValueAtTime(freq, noteTime);
-            g.gain.setValueAtTime(0, noteTime);
-            g.gain.linearRampToValueAtTime(0.08, noteTime + 0.02);
-            g.gain.exponentialRampToValueAtTime(0.001, noteTime + 0.4);
-            osc.connect(g);
-            g.connect(audioCtx.destination);
-            osc.start(noteTime);
-            osc.stop(noteTime + 0.45);
-        });
-        setTimeout(onDone, 450);
-    }
-    /* ========================================== */
 
     let itemsFound = 0;
 
-    // 电影级开场流时间控制器 (Cinematic Opening Timeline)
-    const touchToStart = document.getElementById('touch-to-start');
-    touchToStart.addEventListener('click', () => {
-        touchToStart.style.display = 'none';
-        triggerCinematicOpening();
-    });
-
-    // 滚动条提示与遮罩检测器
-    function updateScrollIndicator(element) {
-        const indicator = document.getElementById('dialogue-scroll-indicator');
-        const overlay = document.getElementById('dialogue-fade-overlay');
-        if (!element || !indicator) return;
-
-        const isOverflowed = element.scrollHeight > element.clientHeight;
-        const isAtBottom = Math.abs(element.scrollHeight - element.clientHeight - element.scrollTop) < 6;
-
-        if (isOverflowed && !isAtBottom) {
-            indicator.classList.add('visible');
-            if (overlay) overlay.classList.add('visible');
-        } else {
-            indicator.classList.remove('visible');
-            if (overlay) overlay.classList.remove('visible');
-        }
-    }
-
     function triggerCinematicOpening() {
-        initAudio(); 
-        startBGM();  
-
-        // 绑定对话框滚动监视器
+        initAudio(); startBGM();
         const diagTextEl = document.getElementById('dialogue-text');
-        if (diagTextEl) {
-            diagTextEl.addEventListener('scroll', () => {
-                updateScrollIndicator(diagTextEl);
-            });
-        }
+        if (diagTextEl) diagTextEl.addEventListener('scroll', () => updateScrollIndicator(diagTextEl));
 
-        // Step 2: JACK1.png 缓缓浮现在屏幕右下角
         const mentor = document.getElementById('mentor-npc');
         mentor.classList.add('visible');
         playMentorAppear();
 
-        // Step 3: 触发打字机对话框
         setTimeout(() => {
-            const diagBox = document.getElementById('dialogue-box');
-            diagBox.classList.add('visible');
-
-            const textEl = document.getElementById('dialogue-text');
-            const lines = [
-                "欢迎来到寻宝岛。",
-                "寻找全部历史文物。",
-                "回答相关历史问题。",
-                "准备开始探索吧！"
-            ];
-
-            runTypewriter(textEl, lines, 0, () => {
-                // 对话结束后直接平滑淡入游戏界面（不弹出任何提示卷轴）
-                autoStartTimeout = setTimeout(() => {
-                    proceedToGameDirectly();
-                }, 1500);
+            document.getElementById('dialogue-box').classList.add('visible');
+            runTypewriter(diagTextEl, ["欢迎来到寻宝岛。", "寻找全部历史文物。", "回答相关历史问题。", "准备开始探索吧！"], 0, () => {
+                autoStartTimeout = setTimeout(proceedToGameDirectly, 1500);
             });
         }, 1000);
     }
 
-    /* ==========================================
-       QoL: RPG-STYLE TYPEWRITER MACHINE 
-       ========================================== */
-    let typewriterState = {
-        element: null,
-        lines: [],
-        currentLineIdx: 0,
-        currentCharIdx: 0,
-        isTyping: false,
-        isWaiting: false,
-        onDone: null,
-        typingTimeout: null,
-        waitingTimeout: null,
-        completedHTML: "" 
-    };
-
+    /* TYPEWRITER LOGIC */
+    let typewriterState = { element: null, lines: [], currentLineIdx: 0, currentCharIdx: 0, isTyping: false, isWaiting: false, onDone: null, typingTimeout: null, waitingTimeout: null, completedHTML: "" };
     let dialogueFullyDone = false;
     let autoStartTimeout = null;
 
     function runTypewriter(element, linesArray, lineIdx, onDone) {
-        if (lineIdx === 0) {
-            dialogueFullyDone = false;
-            typewriterState.element = element;
-            typewriterState.lines = linesArray;
-            typewriterState.currentLineIdx = 0;
-            typewriterState.completedHTML = "";
-            typewriterState.onDone = () => {
-                dialogueFullyDone = true;
-                onDone();
-            };
-        }
+        if (lineIdx === 0) { dialogueFullyDone = false; typewriterState.element = element; typewriterState.lines = linesArray; typewriterState.currentLineIdx = 0; typewriterState.completedHTML = ""; typewriterState.onDone = () => { dialogueFullyDone = true; onDone(); }; }
         startTypingLine(lineIdx);
     }
 
     function startTypingLine(lineIdx) {
-        if (lineIdx >= typewriterState.lines.length) {
-            typewriterState.isTyping = false;
-            typewriterState.isWaiting = false;
-            if (typewriterState.onDone) typewriterState.onDone();
-            return;
-        }
-        
-        typewriterState.currentLineIdx = lineIdx;
-        typewriterState.currentCharIdx = 0;
-        typewriterState.isTyping = true;
-        typewriterState.isWaiting = false;
-        
+        if (lineIdx >= typewriterState.lines.length) { typewriterState.isTyping = false; typewriterState.isWaiting = false; if (typewriterState.onDone) typewriterState.onDone(); return; }
+        typewriterState.currentLineIdx = lineIdx; typewriterState.currentCharIdx = 0; typewriterState.isTyping = true; typewriterState.isWaiting = false;
         if (typewriterState.typingTimeout) clearTimeout(typewriterState.typingTimeout);
         if (typewriterState.waitingTimeout) clearTimeout(typewriterState.waitingTimeout);
-
         let curLine = typewriterState.lines[lineIdx];
         let prefix = (lineIdx > 0) ? "<br>" : "";
-        
         function writeChar() {
             if (typewriterState.currentCharIdx < curLine.length) {
                 typewriterState.element.innerHTML = typewriterState.completedHTML + prefix + curLine.substring(0, typewriterState.currentCharIdx + 1);
-                typewriterState.currentCharIdx++;
-                playTypewriterTick();
-
+                typewriterState.currentCharIdx++; playTypewriterTick();
                 typewriterState.element.scrollTop = typewriterState.element.scrollHeight;
                 updateScrollIndicator(typewriterState.element);
-
                 typewriterState.typingTimeout = setTimeout(writeChar, 80);
-            } else {
-                finishCurrentLine();
-            }
+            } else { finishCurrentLine(); }
         }
         writeChar();
     }
 
     function finishCurrentLine() {
-        typewriterState.isTyping = false;
-        typewriterState.isWaiting = true;
-        
+        typewriterState.isTyping = false; typewriterState.isWaiting = true;
         if (typewriterState.typingTimeout) clearTimeout(typewriterState.typingTimeout);
-        
         let curLine = typewriterState.lines[typewriterState.currentLineIdx];
         let prefix = (typewriterState.currentLineIdx > 0) ? "<br>" : "";
-        
         typewriterState.element.innerHTML = typewriterState.completedHTML + prefix + curLine;
         typewriterState.completedHTML = typewriterState.element.innerHTML;
-        
         typewriterState.element.scrollTop = typewriterState.element.scrollHeight;
         updateScrollIndicator(typewriterState.element);
-
-        typewriterState.waitingTimeout = setTimeout(() => {
-            typewriterState.isWaiting = false;
-            startTypingLine(typewriterState.currentLineIdx + 1);
-        }, 400);
+        typewriterState.waitingTimeout = setTimeout(() => { typewriterState.isWaiting = false; startTypingLine(typewriterState.currentLineIdx + 1); }, 400);
     }
 
     function skipDialogue() {
-        if (typewriterState.isTyping) {
-            // 输入中点击：立即显示完整句子
-            finishCurrentLine();
-        } else if (typewriterState.isWaiting) {
-            // 句子间等待时点击：跳过等待进入下一句
-            typewriterState.isWaiting = false;
-            if (typewriterState.waitingTimeout) clearTimeout(typewriterState.waitingTimeout);
-            startTypingLine(typewriterState.currentLineIdx + 1);
-        } else if (dialogueFullyDone) {
-            // 已完全播放完毕且正在等待过渡时点击：直接切入游戏
-            if (autoStartTimeout) {
-                clearTimeout(autoStartTimeout);
-                autoStartTimeout = null;
-            }
-            proceedToGameDirectly();
-        }
+        if (typewriterState.isTyping) finishCurrentLine();
+        else if (typewriterState.isWaiting) { typewriterState.isWaiting = false; clearTimeout(typewriterState.waitingTimeout); startTypingLine(typewriterState.currentLineIdx + 1); }
+        else if (dialogueFullyDone) { if (autoStartTimeout) clearTimeout(autoStartTimeout); proceedToGameDirectly(); }
     }
 
-    /* ==========================================
-       QoL: VISUAL TIMER CONTROLLER
-       ========================================== */
+    function updateScrollIndicator(element) {
+        const indicator = document.getElementById('dialogue-scroll-indicator');
+        const overlay = document.getElementById('dialogue-fade-overlay');
+        const isOverflowed = element.scrollHeight > element.clientHeight;
+        const isAtBottom = Math.abs(element.scrollHeight - element.clientHeight - element.scrollTop) < 6;
+        if (isOverflowed && !isAtBottom) { indicator.classList.add('visible'); if (overlay) overlay.classList.add('visible'); }
+        else { indicator.classList.remove('visible'); if (overlay) overlay.classList.remove('visible'); }
+    }
+
     let timerInterval;
     function startVisualTimer() {
         const timerEl = document.getElementById('visual-timer');
-        if (!timerEl) return;
         timerEl.style.display = 'block';
-        
         if (timerInterval) clearInterval(timerInterval);
-        
         timerInterval = setInterval(() => {
-            if (!level1StartTime) return;
             const elapsed = Math.round((Date.now() - level1StartTime) / 1000);
             const mins = String(Math.floor(elapsed / 60)).padStart(2, '0');
             const secs = String(elapsed % 60).padStart(2, '0');
@@ -830,87 +501,40 @@
         }, 1000);
     }
 
-    // 平滑淡出所有引导层，直接切入第一关游戏
     function proceedToGameDirectly() {
         playStartFlourish(() => {
-            const diagBox = document.getElementById('dialogue-box');
+            document.getElementById('dialogue-box').classList.remove('visible');
             const mentor = document.getElementById('mentor-npc');
+            mentor.classList.remove('visible'); mentor.style.opacity = '0';
             const startScreen = document.getElementById('start-screen');
-            
-            if (diagBox) diagBox.classList.remove('visible');
-            if (mentor) {
-                mentor.classList.remove('visible');
-                mentor.style.opacity = '0';
-            }
-            
-            if (startScreen) {
-                startScreen.style.transition = 'opacity 0.5s ease';
-                startScreen.style.opacity = '0';
-                
-                setTimeout(() => {
-                    startScreen.style.display = 'none';
-                    // 记录第一关起步时间并开启探险
-                    level1StartTime = Date.now();
-                    startVisualTimer(); 
-                }, 500);
-            }
+            startScreen.style.transition = 'opacity 0.5s ease'; startScreen.style.opacity = '0';
+            setTimeout(() => { startScreen.style.display = 'none'; level1StartTime = Date.now(); startVisualTimer(); }, 500);
         });
     }
 
-    function startGame() {
-        // 保留原入口声明以防直接测试报错
-    }
-
-    // 游戏世界在加载时立即构建
     function buildGameWorld() {
         const findPanel = document.getElementById('find-panel');
         const objectsLayer = document.getElementById('objects-layer');
-
-        findPanel.innerHTML = '';
-        objectsLayer.innerHTML = '';
-
+        findPanel.innerHTML = ''; objectsLayer.innerHTML = '';
         gameData.forEach(item => {
-            // 生成侧边栏图标 (UI Panel)
-            const uiIcon = document.createElement('img');
-            uiIcon.className = 'ui-item';
-            uiIcon.id = `ui-${item.id}`;
-            uiIcon.src = item.src;
+            const uiIcon = document.createElement('img'); uiIcon.className = 'ui-item'; uiIcon.id = `ui-${item.id}`; uiIcon.src = item.src;
             findPanel.appendChild(uiIcon);
-
-            // 生成地图上的隐藏物品 (Game Map Objects)
-            const mapObj = document.createElement('img');
-            mapObj.className = 'hidden-object';
-            mapObj.id = `obj-${item.id}`;
-            mapObj.src = item.src;
-            mapObj.style.left = `${item.x}%`;
-            mapObj.style.top = `${item.y}%`;
-            
+            const mapObj = document.createElement('img'); mapObj.className = 'hidden-object'; mapObj.id = `obj-${item.id}`; mapObj.src = item.src; mapObj.style.left = `${item.x}%`; mapObj.style.top = `${item.y}%`;
             mapObj.onclick = () => openQuestionPopup(item, mapObj);
             objectsLayer.appendChild(mapObj);
         });
     }
 
     function openQuestionPopup(itemData, mapObj) {
-        playPickup();
-        mapObj.classList.add('object-glow');
-        
+        playPickup(); mapObj.classList.add('object-glow');
         setTimeout(() => {
-            playPopup(); 
-            document.getElementById('scroll-overlay').style.display = 'flex';
-            
-            // Hide visual continue button initially
-            const continueBtn = document.getElementById('continue-btn');
-            if (continueBtn) continueBtn.style.display = 'none';
-
+            playPopup(); document.getElementById('scroll-overlay').style.display = 'flex';
+            document.getElementById('continue-btn').style.display = 'none';
             document.getElementById('question-text').innerText = itemData.q;
-            
             const optsContainer = document.getElementById('options-container');
             optsContainer.innerHTML = ''; 
-
             itemData.opts.forEach((optText, index) => {
-                const btn = document.createElement('button');
-                btn.className = 'option-btn';
-                btn.innerText = String.fromCharCode(65 + index) + ". " + optText;
+                const btn = document.createElement('button'); btn.className = 'option-btn'; btn.innerText = String.fromCharCode(65 + index) + ". " + optText;
                 btn.onclick = () => handleAnswerClick(btn, index, itemData, mapObj);
                 optsContainer.appendChild(btn);
             });
@@ -920,138 +544,41 @@
     function handleAnswerClick(clickedBtn, selectedIndex, itemData, mapObj) {
         const allBtns = document.querySelectorAll('.option-btn');
         allBtns.forEach(b => b.onclick = null);
-
-        if (selectedIndex === itemData.ans) {
-            clickedBtn.classList.add('correct');
-            playCorrect(); 
-            level1CorrectCount++; 
-        } else {
-            clickedBtn.classList.add('wrong');
-            allBtns[itemData.ans].classList.add('correct'); 
-            playWrong(); 
-        }
-
-        // QoL Implementation: Show continue button instead of automatic timer closure
+        if (selectedIndex === itemData.ans) { clickedBtn.classList.add('correct'); playCorrect(); level1CorrectCount++; }
+        else { clickedBtn.classList.add('wrong'); allBtns[itemData.ans].classList.add('correct'); playWrong(); }
         const continueBtn = document.getElementById('continue-btn');
-        if (continueBtn) {
-            continueBtn.style.display = 'block';
-            continueBtn.onclick = () => {
-                document.getElementById('scroll-overlay').style.display = 'none';
-                continueBtn.style.display = 'none';
-                markItemAsFound(itemData.id, mapObj);
-            };
-        } else {
-            // Graceful fallback closure in case layout structure error
-            setTimeout(() => {
-                document.getElementById('scroll-overlay').style.display = 'none';
-                markItemAsFound(itemData.id, mapObj);
-            }, 1500);
-        }
+        continueBtn.style.display = 'block';
+        continueBtn.onclick = () => { document.getElementById('scroll-overlay').style.display = 'none'; markItemAsFound(itemData.id, mapObj); };
     }
 
     function markItemAsFound(itemId, mapObj) {
-        const uiItem = document.getElementById(`ui-${itemId}`);
-        uiItem.classList.add('found');
-        
-        mapObj.remove();
-        itemsFound++;
-
+        document.getElementById(`ui-${itemId}`).classList.add('found');
+        mapObj.remove(); itemsFound++;
         if (itemsFound === gameData.length) {
-            setTimeout(() => {
-                playComplete(); 
-                
-                document.getElementById('transition-screen').style.display = 'flex';
-                
-                setTimeout(() => {
-                    transitionToNextLevel();
-                }, 2000);
-            }, 800);
+            setTimeout(() => { playComplete(); document.getElementById('transition-screen').style.display = 'flex'; setTimeout(transitionToNextLevel, 2000); }, 800);
         }
     }
 
-    /* ==========================================
-       环境金粉微光系统
-       ========================================== */
+    /* PARTICLE SYSTEM */
     const pCanvas = document.getElementById('particleCanvas');
     const pCtx = pCanvas.getContext('2d');
     let gameParticles = [];
-
-    function resizePCanvas() {
-        const container = document.getElementById('game-container');
-        pCanvas.width = container.clientWidth;
-        pCanvas.height = container.clientHeight;
-    }
-    window.addEventListener('resize', resizePCanvas);
-    resizePCanvas();
-
+    function resizePCanvas() { const container = document.getElementById('game-container'); pCanvas.width = container.clientWidth; pCanvas.height = container.clientHeight; }
+    window.addEventListener('resize', resizePCanvas); resizePCanvas();
     class GoldParticle {
-        constructor() {
-            this.reset();
-            this.y = Math.random() * pCanvas.height;
-        }
-        reset() {
-            this.x = Math.random() * pCanvas.width;
-            this.y = pCanvas.height + 10;
-            this.size = Math.random() * 1.5 + 0.3;
-            this.speedY = -(Math.random() * 0.35 + 0.1);
-            this.speedX = Math.random() * 0.25 - 0.125;
-            this.alpha = Math.random() * 0.4 + 0.1;
-        }
-        update() {
-            this.y += this.speedY;
-            this.x += this.speedX;
-            if (this.y < -10) {
-                this.reset();
-            }
-        }
-        draw() {
-            pCtx.save();
-            pCtx.globalAlpha = this.alpha;
-            pCtx.fillStyle = '#ffd700';
-            pCtx.shadowBlur = 4;
-            pCtx.shadowColor = '#ffd700';
-            pCtx.beginPath();
-            pCtx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-            pCtx.fill();
-            pCtx.restore();
-        }
+        constructor() { this.reset(); this.y = Math.random() * pCanvas.height; }
+        reset() { this.x = Math.random() * pCanvas.width; this.y = pCanvas.height + 10; this.size = Math.random() * 1.5 + 0.3; this.speedY = -(Math.random() * 0.35 + 0.1); this.speedX = Math.random() * 0.25 - 0.125; this.alpha = Math.random() * 0.4 + 0.1; }
+        update() { this.y += this.speedY; this.x += this.speedX; if (this.y < -10) this.reset(); }
+        draw() { pCtx.save(); pCtx.globalAlpha = this.alpha; pCtx.fillStyle = '#ffd700'; pCtx.shadowBlur = 4; pCtx.shadowColor = '#ffd700'; pCtx.beginPath(); pCtx.arc(this.x, this.y, this.size, 0, Math.PI * 2); pCtx.fill(); pCtx.restore(); }
     }
-    for (let i = 0; i < 20; i++) {
-        gameParticles.push(new GoldParticle());
-    }
-    function renderGoldParticles() {
-        pCtx.clearRect(0, 0, pCanvas.width, pCanvas.height);
-        gameParticles.forEach(p => {
-            p.update();
-            p.draw();
-        });
-        requestAnimationFrame(renderGoldParticles);
-    }
+    for (let i = 0; i < 20; i++) gameParticles.push(new GoldParticle());
+    function renderGoldParticles() { pCtx.clearRect(0, 0, pCanvas.width, pCanvas.height); gameParticles.forEach(p => { p.update(); p.draw(); }); requestAnimationFrame(renderGoldParticles); }
     renderGoldParticles();
 
-    // 在脚本加载时，立刻构建隐藏关卡世界，防止通关指南合拢后文物动态生成导致漏题
-    buildGameWorld();
-    loadGameSession();
-
-    // 绑定对话框点击跳过事件
-    const dialogueBox = document.getElementById('dialogue-box');
-    if (dialogueBox) {
-        dialogueBox.addEventListener('click', skipDialogue);
-    }
-
-    // 针对第一次交互播放音乐的安全垫片
-    document.addEventListener("click", () => {
-        const bgMusic = document.getElementById("bgMusic");
-        if (bgMusic && bgMusic.paused) {
-            bgMusic.volume = 0.25;
-            bgMusic.play().catch(() => {});
-        }
-    }, { once: true });
+    document.getElementById('dialogue-box').addEventListener('click', skipDialogue);
+    document.addEventListener("click", () => { const bgMusic = document.getElementById("bgMusic"); if (bgMusic && bgMusic.paused) { bgMusic.volume = 0.25; bgMusic.play().catch(() => {}); } }, { once: true });
 </script>
 
-<audio id="bgMusic" loop>
-    <source src="game-bgm.mp3" type="audio/mpeg">
-</audio>
-
+<audio id="bgMusic" loop><source src="game-bgm.mp3" type="audio/mpeg"></audio>
 </body>
 </html>
